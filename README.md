@@ -5,7 +5,7 @@ Stateful is a Kotlin library which makes Android application development faster 
 # Download
 Gradle:
 ```groovy
-implementation 'com.picsart:stateful:1.0.0'
+implementation 'com.picsart:stateful:1.0.1'
 ```
 # Using Stateful
 The most activities look like the following example.
@@ -61,5 +61,4 @@ class MySuperCoolActivity : Activity(), Stateful by state() {
 }
 ```
 
-The default implementation is using property names as a key to put them in the bundle. If you want to implement your own logic for a key generation you can extend *Stateful* interface and use your own implementation.# extended-ktx
-A set of Kotlin extensions for Android app development which didn't find their place in Android-KTX library
+The default implementation is using property names as a key to put them in the bundle. If you want to implement your own logic for a key generation you can extend *Stateful* interface and use your own implementation.
