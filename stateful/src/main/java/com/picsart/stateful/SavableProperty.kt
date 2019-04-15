@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 PicsArt, Inc.
+ * Copyright (C) 2019 PicsArt, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,11 @@ import kotlin.reflect.KProperty
 class SavableProperty<T : Any>(
         private val defaultValue: T,
         private val key: String) :
-        ReadWriteProperty<Any, T> {
+        ReadWriteProperty<Any, T>, Savable {
 
-    private var value: T = defaultValue
+    internal var value: T = defaultValue
 
-    fun saveState(bundle: Bundle) {
+    override fun saveState(bundle: Bundle) {
         when (value) {
             is Boolean -> bundle.putBoolean(key, value as Boolean)
             is BooleanArray -> bundle.putBooleanArray(key, value as BooleanArray)
@@ -56,7 +56,11 @@ class SavableProperty<T : Any>(
         }
     }
 
-    fun restoreState(bundle: Bundle) {
+    override fun restoreState(bundle: Bundle?) {
+        if (bundle == null || !bundle.containsKey(key)) {
+            value = defaultValue
+            return
+        }
         val nullableValue: T? = when (value) {
             is Boolean -> bundle.getBoolean(key, defaultValue as Boolean) as T?
             is BooleanArray -> bundle.getBooleanArray(key) as T?

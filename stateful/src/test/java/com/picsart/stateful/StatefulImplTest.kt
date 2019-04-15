@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 PicsArt, Inc.
+ * Copyright (C) 2019 PicsArt, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 package com.picsart.stateful
 
+import android.arch.lifecycle.MutableLiveData
+import android.arch.lifecycle.Observer
 import android.os.Bundle
-import com.picsart.stateful.Stateful
-import com.picsart.stateful.StatefulImpl
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,6 +31,57 @@ class StatefulImplTest : Stateful by StatefulImpl() {
 
     private var testProperty by statefulProperty(3)
     private var testPropertyWithKey by statefulProperty(-78, "test property")
+
+    private var liveData by statefulLiveDataProperty(MutableLiveData(), -78, "test property")
+
+    @Test
+    fun propertyLiveDataTest() {
+        Assert.assertNull(liveData.value)
+
+        restore(null)
+        Assert.assertEquals(-78, liveData.value)
+        var isFirst = false
+        var observer = Observer<Int> {
+            if (!isFirst) {
+                Assert.assertEquals(-78, it)
+                isFirst = true
+            } else {
+                Assert.assertEquals(90, it)
+            }
+
+        }
+        liveData.observeForever(observer)
+        liveData.apply { value = 90 }
+        Assert.assertEquals(liveData.value, 90)
+        val bundle = Bundle()
+        liveData.removeObserver(observer)
+        save(bundle)
+        isFirst = false
+        observer = Observer {
+            if (!isFirst) {
+                Assert.assertEquals(90, it)
+                isFirst = true
+            } else {
+                Assert.assertEquals(128, it)
+            }
+        }
+        liveData.observeForever(observer)
+        liveData.apply { value = 128 }
+        Assert.assertEquals(liveData.value, 128)
+        liveData.removeObserver(observer)
+        isFirst = false
+        observer = Observer {
+            if (!isFirst) {
+                Assert.assertEquals(128, it)
+                isFirst = true
+            } else {
+                Assert.assertEquals(90, it)
+            }
+        }
+        liveData.observeForever(observer)
+        restore(bundle)
+        Assert.assertEquals(liveData.value, 90)
+    }
 
     @Test
     fun propertyTest() {

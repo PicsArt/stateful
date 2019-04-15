@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 PicsArt, Inc.
+ * Copyright (C) 2019 PicsArt, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,21 @@
 
 package com.picsart.stateful
 
+import android.arch.lifecycle.MutableLiveData
 import android.os.Bundle
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 interface Stateful {
     fun <T : Any> statefulProperty(defaultValue: T, key: String? = null): StatefulProperty<T>
+
+    fun <V : Any, T : MutableLiveData<V>> statefulLiveDataProperty(instance: T,
+                                                                   defaultValue: V,
+                                                                   key: String? = null):
+            StatefulProperty<T>
+
     fun restore(state: Bundle?)
+
     fun save(state: Bundle)
 }
 

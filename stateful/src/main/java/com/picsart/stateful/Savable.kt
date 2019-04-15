@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 PicsArt, Inc.
+ * Copyright (C) 2019 PicsArt, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-buildscript {
-    ext.kotlin_version = '1.3.30'
-    repositories {
-        google()
-        mavenCentral()
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
+package com.picsart.stateful
+
+import android.os.Bundle
+
+interface Savable {
+    fun saveState(bundle: Bundle)
+
+    fun restoreState(bundle: Bundle?)
 }

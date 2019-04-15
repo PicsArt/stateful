@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 PicsArt, Inc.
+ * Copyright (C) 2019 PicsArt, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import kotlin.reflect.KClass
 
 //TODO implement tests for types Bundle, Parcelable, Serializable
 @RunWith(RobolectricTestRunner::class)
-@Config(manifest=Config.NONE)
+@Config(manifest = Config.NONE)
 class SavablePropertyTest {
     @Test
     fun booleanTest() {
@@ -89,6 +89,11 @@ class SavablePropertyTest {
     @Test
     fun intArrayTest() {
         testProperty(IntArray::class)
+    }
+
+    @Test
+    fun enumTest() {
+        testProperty(Mode::class)
     }
 
     @Test
@@ -191,8 +196,9 @@ class SavablePropertyTest {
             Short::class -> Random().nextInt(Short.MAX_VALUE + 1).toShort() as T
             ShortArray::class -> generateRandomArrayOfType(Short::class) as T
             String::class -> UUID.randomUUID().toString() as T
+            Mode::class -> Mode.values()[Random().nextInt(Short.MAX_VALUE + 1) % 2] as T
             else -> {
-                throw TypeNotPresentException("generateRandomValueOfType is not implemented for " + type.toString(), null)
+                throw TypeNotPresentException("generateRandomValueOfType is not implemented for $type", null)
             }
         }
     }
@@ -213,4 +219,9 @@ class SavablePropertyTest {
             else -> Array<Any>(size) { generateRandomValueOfType(type) } as T
         }
     }
+}
+
+enum class Mode {
+    DEFAULT,
+    OTHER
 }
