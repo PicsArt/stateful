@@ -21,12 +21,18 @@ import android.os.Bundle
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
+inline fun <reified R> func() {
+
+}
+
 interface Stateful {
     fun <T : Any> statefulProperty(defaultValue: T, key: String? = null): StatefulProperty<T>
 
-    fun <V : Any, T : MutableLiveData<V>> statefulLiveDataProperty(instance: T,
-                                                                   defaultValue: V,
-                                                                   key: String? = null):
+    fun <T> statefulNullableProperty(defaultValue: T?, key: String? = null): StatefulProperty<T?>
+
+    fun <V, T : MutableLiveData<V>> statefulLiveDataProperty(instance: T,
+                                                             defaultValue: V?,
+                                                             key: String? = null):
             StatefulProperty<T>
 
     fun restore(state: Bundle?)
@@ -34,6 +40,6 @@ interface Stateful {
     fun save(state: Bundle)
 }
 
-interface StatefulProperty<T : Any> {
+interface StatefulProperty<T> {
     operator fun provideDelegate(thisRef: Any, prop: KProperty<*>): ReadWriteProperty<Any, T>
 }

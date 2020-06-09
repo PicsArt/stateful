@@ -21,15 +21,20 @@ import android.os.Bundle
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-class SavableLiveDataProperty<V : Any, T : MutableLiveData<V>>(private var instance: T,
-                                                               private val defaultValue: V,
-                                                               private val key: String) :
-        ReadWriteProperty<Any, T>, Savable {
+class SavableLiveDataProperty<V, T : MutableLiveData<V>>(
+        private var instance: T,
+        private val defaultValue: V?,
+        private val key: String
+) : ReadWriteProperty<Any, T>, Savable {
 
-    private var property: SavableProperty<V> = SavableProperty(defaultValue, key)
+    private var property = SavableProperty(defaultValue, key)
+
+    init {
+        instance.value = defaultValue
+    }
 
     override fun saveState(bundle: Bundle) {
-        property.value = instance.value!!
+        property.value = instance.value
         property.saveState(bundle)
     }
 
