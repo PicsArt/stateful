@@ -16,9 +16,9 @@
 
 package com.picsart.stateful
 
-import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.Observer
 import android.os.Bundle
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith

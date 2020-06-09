@@ -16,8 +16,8 @@
 
 package com.picsart.stateful
 
-import android.arch.lifecycle.MutableLiveData
 import android.os.Bundle
+import androidx.lifecycle.MutableLiveData
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
