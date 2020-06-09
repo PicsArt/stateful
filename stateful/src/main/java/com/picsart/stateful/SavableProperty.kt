@@ -23,14 +23,20 @@ import java.io.Serializable
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-class SavableProperty<T : Any>(
+class SavableProperty<T>(
         private val defaultValue: T,
-        private val key: String) :
-        ReadWriteProperty<Any, T>, Savable {
+        private val key: String
+) : ReadWriteProperty<Any, T>, Savable {
 
     internal var value: T = defaultValue
 
+    private val classKey = key + "_class"
+
     override fun saveState(bundle: Bundle) {
+        if (value == null) {
+            return
+        }
+
         when (value) {
             is Boolean -> bundle.putBoolean(key, value as Boolean)
             is BooleanArray -> bundle.putBooleanArray(key, value as BooleanArray)
@@ -52,39 +58,46 @@ class SavableProperty<T : Any>(
             is ShortArray -> bundle.putShortArray(key, value as ShortArray)
             is String -> bundle.putString(key, value as String)
             is Serializable -> bundle.putSerializable(key, value as Serializable)
-            else -> bundle.putString(key, Gson().toJson(value))
+            else -> {
+                bundle.putSerializable(classKey, (value as Any)::class.java)
+                bundle.putString(key, Gson().toJson(value))
+            }
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun restoreState(bundle: Bundle?) {
         if (bundle == null || !bundle.containsKey(key)) {
             value = defaultValue
             return
         }
-        val nullableValue: T? = when (value) {
-            is Boolean -> bundle.getBoolean(key, defaultValue as Boolean) as T?
-            is BooleanArray -> bundle.getBooleanArray(key) as T?
-            is Bundle -> bundle.getBundle(key) as T?
-            is Byte -> bundle.getByte(key, defaultValue as Byte) as T?
-            is ByteArray -> bundle.getByteArray(key) as T?
-            is Char -> bundle.getChar(key, defaultValue as Char) as T?
-            is CharArray -> bundle.getCharArray(key) as T?
-            is Double -> bundle.getDouble(key, defaultValue as Double) as T?
-            is DoubleArray -> bundle.getDoubleArray(key) as T?
-            is Float -> bundle.getFloat(key, defaultValue as Float) as T?
-            is FloatArray -> bundle.getFloatArray(key) as T?
-            is Int -> bundle.getInt(key, defaultValue as Int) as T?
-            is IntArray -> bundle.getIntArray(key) as T?
-            is Long -> bundle.getLong(key, defaultValue as Long) as T?
-            is LongArray -> bundle.getLongArray(key) as T?
-            is Parcelable -> bundle.getParcelable<Parcelable>(key) as T?
-            is Short -> bundle.getShort(key, defaultValue as Short) as T?
-            is ShortArray -> bundle.getShortArray(key) as T?
-            is String -> bundle.getString(key, defaultValue as String) as T?
-            is Serializable -> bundle.getSerializable(key) as T?
-            else -> Gson().fromJson(bundle.getString(key), value::class.java)
+        val nullableValue = when (value) {
+            is Boolean -> bundle.getBoolean(key) as T
+            is BooleanArray -> bundle.getBooleanArray(key) as T
+            is Bundle -> bundle.getBundle(key) as T
+            is Byte -> bundle.getByte(key) as T
+            is ByteArray -> bundle.getByteArray(key) as T
+            is Char -> bundle.getChar(key) as T
+            is CharArray -> bundle.getCharArray(key) as T
+            is Double -> bundle.getDouble(key) as T
+            is DoubleArray -> bundle.getDoubleArray(key) as T
+            is Float -> bundle.getFloat(key) as T
+            is FloatArray -> bundle.getFloatArray(key) as T
+            is Int -> bundle.getInt(key) as T
+            is IntArray -> bundle.getIntArray(key) as T
+            is Long -> bundle.getLong(key) as T
+            is LongArray -> bundle.getLongArray(key) as T
+            is Parcelable -> bundle.getParcelable<Parcelable>(key) as T
+            is Short -> bundle.getShort(key) as T
+            is ShortArray -> bundle.getShortArray(key) as T
+            is String -> bundle.getString(key) as T
+            is Serializable -> bundle.getSerializable(key) as T
+            else -> {
+                val klass = bundle.getSerializable(classKey) as Class<T>
+                Gson().fromJson(bundle.getString(key), klass)
+            }
         }
-        value = nullableValue ?: defaultValue
+        value = nullableValue
     }
 
     override fun getValue(thisRef: Any, property: KProperty<*>): T {

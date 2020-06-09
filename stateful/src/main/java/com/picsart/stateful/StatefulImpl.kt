@@ -34,9 +34,13 @@ class StatefulImpl : Stateful {
         return SavablePropertyWrapper(defaultValue, key)
     }
 
-    override fun <V : Any, T : MutableLiveData<V>> statefulLiveDataProperty(instance: T,
-                                                                            defaultValue: V,
-                                                                            key: String?):
+    override fun <T> statefulNullableProperty(defaultValue: T?, key: String?): StatefulProperty<T?> {
+        return SavableNullablePropertyWrapper(defaultValue, key)
+    }
+
+    override fun <V, T : MutableLiveData<V>> statefulLiveDataProperty(instance: T,
+                                                                      defaultValue: V?,
+                                                                      key: String?):
             StatefulProperty<T> {
         return SavablePropertyLiveDataWrapper(instance, defaultValue, key)
     }
@@ -53,8 +57,11 @@ class StatefulImpl : Stateful {
         }
     }
 
-    private inner class SavablePropertyWrapper<T : Any>(val defaultValue: T, val key: String?) :
-            StatefulProperty<T> {
+    private inner class SavablePropertyWrapper<T : Any>(
+            val defaultValue: T,
+            val key: String?
+    ) : StatefulProperty<T> {
+
         override operator fun provideDelegate(thisRef: Any, prop: KProperty<*>):
                 ReadWriteProperty<Any, T> {
             val savableProperty = SavableProperty(defaultValue, key ?: prop.name)
@@ -63,10 +70,24 @@ class StatefulImpl : Stateful {
         }
     }
 
-    private inner class SavablePropertyLiveDataWrapper<V : Any, T : MutableLiveData<V>>(
-            val instance: T, val defaultValue: V,
-            val key: String?) :
-            StatefulProperty<T> {
+    private inner class SavableNullablePropertyWrapper<T>(
+            val defaultValue: T?,
+            val key: String?
+    ) : StatefulProperty<T?> {
+
+        override operator fun provideDelegate(thisRef: Any, prop: KProperty<*>):
+                ReadWriteProperty<Any, T?> {
+            val savableProperty = SavableProperty(defaultValue, key ?: prop.name)
+            properties.add(savableProperty)
+            return savableProperty
+        }
+    }
+
+    private inner class SavablePropertyLiveDataWrapper<V, T : MutableLiveData<V>>(
+            val instance: T,
+            val defaultValue: V?,
+            val key: String?
+    ) : StatefulProperty<T> {
 
         override operator fun provideDelegate(thisRef: Any, prop: KProperty<*>):
                 ReadWriteProperty<Any, T> {

@@ -30,20 +30,20 @@ import org.robolectric.annotation.Config
 class StatefulImplTest : Stateful by StatefulImpl() {
 
     private var testProperty by statefulProperty(3)
+
+    private var testNullableProperty by statefulNullableProperty<Int>(null)
+
     private var testPropertyWithKey by statefulProperty(-78, "test property")
 
-    private var liveData by statefulLiveDataProperty(MutableLiveData(), -78, "test property")
+    private var liveData by statefulLiveDataProperty(MutableLiveData<Int>(), null, "test livedata property")
 
     @Test
     fun propertyLiveDataTest() {
-        Assert.assertNull(liveData.value)
-
-        restore(null)
-        Assert.assertEquals(-78, liveData.value)
+        Assert.assertEquals(null, liveData.value)
         var isFirst = false
         var observer = Observer<Int> {
             if (!isFirst) {
-                Assert.assertEquals(-78, it)
+                Assert.assertEquals(null, it)
                 isFirst = true
             } else {
                 Assert.assertEquals(90, it)
@@ -97,6 +97,26 @@ class StatefulImplTest : Stateful by StatefulImpl() {
         restore(null)
         restore(bundle)
         Assert.assertEquals(9, testProperty)
+    }
+
+    @Test
+    fun propertyNullableTest() {
+        Assert.assertEquals(null, testNullableProperty)
+        testNullableProperty = 9
+        Assert.assertEquals(9, testNullableProperty)
+        testNullableProperty = null
+        Assert.assertEquals(null, testNullableProperty)
+
+        val bundle = Bundle()
+        save(bundle)
+        Assert.assertTrue(!bundle.containsKey("testNullableProperty"))
+        Assert.assertEquals(null, bundle.get("testNullableProperty"))
+        testNullableProperty = 67
+        Assert.assertEquals(67, testNullableProperty)
+        restore(null)
+        restore(bundle)
+        Assert.assertTrue(!bundle.containsKey("testNullableProperty"))
+        Assert.assertEquals(null, testNullableProperty)
     }
 
     @Test
