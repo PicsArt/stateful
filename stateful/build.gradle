@@ -18,10 +18,10 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 28
+        targetSdkVersion 29
     }
     buildTypes {
         release {
@@ -39,8 +39,8 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.google.code.gson:gson:2.8.5'
-    implementation 'android.arch.lifecycle:livedata:1.1.1'
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'androidx.lifecycle:lifecycle-livedata:2.0.0'
     testImplementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.robolectric:robolectric:3.8'
