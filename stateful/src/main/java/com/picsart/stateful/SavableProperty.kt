@@ -33,7 +33,9 @@ class SavableProperty<T>(
     private val classKey = key + "_class"
 
     override fun saveState(bundle: Bundle) {
-        val value: T? = value ?: return
+        if (value == null) {
+            return
+        }
 
         when (value) {
             is Boolean -> bundle.putBoolean(key, value as Boolean)

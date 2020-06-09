@@ -21,10 +21,6 @@ import android.os.Bundle
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-inline fun <reified R> func() {
-
-}
-
 interface Stateful {
     fun <T : Any> statefulProperty(defaultValue: T, key: String? = null): StatefulProperty<T>
 
