@@ -5,13 +5,14 @@ Stateful is a Kotlin library which makes Android application development faster 
 # Download
 Gradle:
 ```groovy
-implementation 'com.picsart:stateful:1.0.1'
+implementation 'com.picsart:stateful:1.2.0'
 ```
 # Using Stateful
 The most activities look like the following example.
 ```kotlin
 class MySuperCoolActivity : Activity() {
     private var importantNumber: Int = 3
+    private var importantNullableNumber: Int? = null
     private var importantFlag: Boolean = false
     ///and many other super important properties
 
@@ -21,6 +22,9 @@ class MySuperCoolActivity : Activity() {
         if (savedInstanceState != null) {
             importantNumber = savedInstanceState.getInt("important property key")
             importantFlag = savedInstanceState.getBoolean("important flag key")
+            if (savedInstanceState.containsKey("important nullable property key")) {
+                importantNullableNumber = savedInstanceState.getInt("important nullable property key")            
+            }
             //....
         }
         //some important logic...
@@ -30,6 +34,9 @@ class MySuperCoolActivity : Activity() {
         super.onSaveInstanceState(outState)
         outState.putInt("important property key", importantNumber)
         outState.putBoolean("important flag key", importantFlag)
+        importantNullableNumber?.let {
+            outState.putInt("important nullable property key", it)
+        }
         //....
     }
 
@@ -42,6 +49,7 @@ What if I say that you can remove all boilerplate code for saving state with the
 ```kotlin
 class MySuperCoolActivity : Activity(), Stateful by state() {
     private var importantNumber: Int by statefulProperty(3)
+    private var importantNullableNumber: Int? by statefulNullableProperty<Int>(null)
     private var importantFlag: Boolean by statefulProperty(false)
     ///and many more super important properties
 
