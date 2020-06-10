@@ -5,7 +5,7 @@ Stateful is a Kotlin library which makes Android application development faster 
 # Download
 Gradle:
 ```groovy
-implementation 'com.picsart:stateful:1.2.0'
+implementation 'com.picsart:stateful:1.2.1'
 ```
 # Using Stateful
 The most activities look like the following example.
