@@ -71,33 +71,13 @@ class SavableProperty<T>(
             value = defaultValue
             return
         }
-        val nullableValue = when (value) {
-            is Boolean -> bundle.getBoolean(key) as T
-            is BooleanArray -> bundle.getBooleanArray(key) as T
-            is Bundle -> bundle.getBundle(key) as T
-            is Byte -> bundle.getByte(key) as T
-            is ByteArray -> bundle.getByteArray(key) as T
-            is Char -> bundle.getChar(key) as T
-            is CharArray -> bundle.getCharArray(key) as T
-            is Double -> bundle.getDouble(key) as T
-            is DoubleArray -> bundle.getDoubleArray(key) as T
-            is Float -> bundle.getFloat(key) as T
-            is FloatArray -> bundle.getFloatArray(key) as T
-            is Int -> bundle.getInt(key) as T
-            is IntArray -> bundle.getIntArray(key) as T
-            is Long -> bundle.getLong(key) as T
-            is LongArray -> bundle.getLongArray(key) as T
-            is Parcelable -> bundle.getParcelable<Parcelable>(key) as T
-            is Short -> bundle.getShort(key) as T
-            is ShortArray -> bundle.getShortArray(key) as T
-            is String -> bundle.getString(key) as T
-            is Serializable -> bundle.getSerializable(key) as T
-            else -> {
-                val klass = bundle.getSerializable(classKey) as Class<T>
-                Gson().fromJson(bundle.getString(key), klass)
-            }
+
+        value = if (bundle.containsKey(classKey)) {
+            val klass = bundle.getSerializable(classKey) as Class<T>
+            Gson().fromJson(bundle.getString(key), klass)
+        } else {
+            bundle.get(key) as T
         }
-        value = nullableValue
     }
 
     override fun getValue(thisRef: Any, property: KProperty<*>): T {

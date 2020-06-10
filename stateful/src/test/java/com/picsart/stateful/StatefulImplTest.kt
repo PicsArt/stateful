@@ -29,9 +29,27 @@ import org.robolectric.annotation.Config
 @Config(manifest = Config.NONE)
 class StatefulImplTest : Stateful by StatefulImpl() {
 
+    data class A(val a: Int)
+
+    enum class B {
+        B_1, B_2
+    }
+
     private var testProperty by statefulProperty(3)
 
     private var testNullableProperty by statefulNullableProperty<Int>(null)
+
+    private var testNullableProperty1 by statefulNullableProperty(false)
+
+    private var testNullableProperty2 by statefulNullableProperty<A>(null)
+
+    private var testNullableProperty3 by statefulNullableProperty(A(2))
+
+    private var testNullableProperty4 by statefulNullableProperty("1234")
+
+    private var testNullableProperty5 by statefulNullableProperty(B.B_2)
+
+    private var testNullableProperty6 by statefulNullableProperty(Bundle())
 
     private var testPropertyWithKey by statefulProperty(-78, "test property")
 
@@ -53,9 +71,10 @@ class StatefulImplTest : Stateful by StatefulImpl() {
         liveData.observeForever(observer)
         liveData.apply { value = 90 }
         Assert.assertEquals(liveData.value, 90)
+
         val bundle = Bundle()
         liveData.removeObserver(observer)
-        save(bundle)
+        saveInternal(bundle)
         isFirst = false
         observer = Observer {
             if (!isFirst) {
@@ -65,10 +84,12 @@ class StatefulImplTest : Stateful by StatefulImpl() {
                 Assert.assertEquals(128, it)
             }
         }
+        restore(bundle)
         liveData.observeForever(observer)
         liveData.apply { value = 128 }
         Assert.assertEquals(liveData.value, 128)
         liveData.removeObserver(observer)
+
         isFirst = false
         observer = Observer {
             if (!isFirst) {
@@ -89,7 +110,7 @@ class StatefulImplTest : Stateful by StatefulImpl() {
         testProperty = 9
         Assert.assertEquals(9, testProperty)
         val bundle = Bundle()
-        save(bundle)
+        saveInternal(bundle)
         Assert.assertTrue(bundle.containsKey("testProperty"))
         Assert.assertEquals(9, bundle.get("testProperty"))
         testProperty = 67
@@ -107,16 +128,27 @@ class StatefulImplTest : Stateful by StatefulImpl() {
         testNullableProperty = null
         Assert.assertEquals(null, testNullableProperty)
 
-        val bundle = Bundle()
-        save(bundle)
+        var bundle = Bundle()
+        saveInternal(bundle)
         Assert.assertTrue(!bundle.containsKey("testNullableProperty"))
         Assert.assertEquals(null, bundle.get("testNullableProperty"))
         testNullableProperty = 67
         Assert.assertEquals(67, testNullableProperty)
-        restore(null)
         restore(bundle)
         Assert.assertTrue(!bundle.containsKey("testNullableProperty"))
         Assert.assertEquals(null, testNullableProperty)
+        Assert.assertTrue(!bundle.containsKey("testNullableProperty"))
+        Assert.assertEquals(null, testNullableProperty)
+
+        testNullableProperty = 67
+        bundle = Bundle()
+        saveInternal(bundle)
+        testNullableProperty = null
+        Assert.assertTrue(bundle.containsKey("testNullableProperty"))
+        Assert.assertEquals(67, bundle.get("testNullableProperty"))
+        restore(bundle)
+        Assert.assertEquals(67, testNullableProperty)
+
     }
 
     @Test
@@ -125,7 +157,7 @@ class StatefulImplTest : Stateful by StatefulImpl() {
         testPropertyWithKey = 9
         Assert.assertEquals(9, testPropertyWithKey)
         val bundle = Bundle()
-        save(bundle)
+        saveInternal(bundle)
         Assert.assertTrue(bundle.containsKey("test property"))
         Assert.assertEquals(9, bundle.get("test property"))
         testPropertyWithKey = 67
@@ -133,5 +165,18 @@ class StatefulImplTest : Stateful by StatefulImpl() {
         restore(null)
         restore(bundle)
         Assert.assertEquals(9, testPropertyWithKey)
+    }
+
+    //in android, after save state properties are likely to be cleared (i.e. low memory)
+    private fun saveInternal(bundle: Bundle) {
+        save(bundle)
+        testNullableProperty = null
+        testNullableProperty1 = null
+        testNullableProperty2 = null
+        testNullableProperty3 = null
+        testNullableProperty4 = null
+        testNullableProperty5 = null
+        testNullableProperty6 = null
+        liveData.value = null
     }
 }
