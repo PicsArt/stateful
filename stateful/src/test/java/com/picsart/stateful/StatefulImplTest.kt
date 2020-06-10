@@ -49,6 +49,8 @@ class StatefulImplTest : Stateful by StatefulImpl() {
 
     private var testNullableProperty5 by statefulNullableProperty(B.B_2)
 
+    private var testNullableProperty6 by statefulNullableProperty(Bundle())
+
     private var testPropertyWithKey by statefulProperty(-78, "test property")
 
     private var liveData by statefulLiveDataProperty(MutableLiveData<Int>(), null, "test livedata property")
@@ -174,6 +176,7 @@ class StatefulImplTest : Stateful by StatefulImpl() {
         testNullableProperty3 = null
         testNullableProperty4 = null
         testNullableProperty5 = null
+        testNullableProperty6 = null
         liveData.value = null
     }
 }

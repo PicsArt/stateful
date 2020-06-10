@@ -17,6 +17,8 @@
 package com.picsart.stateful
 
 import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,7 +28,6 @@ import java.util.*
 import kotlin.math.abs
 import kotlin.reflect.KClass
 
-//TODO implement tests for types Bundle, Parcelable, Serializable
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
 class SavablePropertyTest {
@@ -92,7 +93,7 @@ class SavablePropertyTest {
     }
 
     @Test
-    fun enumTest() {
+    fun enumSerializableTest() {
         testProperty(Mode::class)
     }
 
@@ -121,6 +122,20 @@ class SavablePropertyTest {
         testProperty(String::class)
     }
 
+    @Test
+    fun gsonTest() {
+        testProperty(DataClass::class)
+    }
+
+    @Test
+    fun parcelableTest() {
+        testProperty(ParcelableClass::class)
+    }
+
+    @Test
+    fun bundleTest() {
+        testProperty(Bundle::class)
+    }
 
     private fun <T : Any> testProperty(type: KClass<T>) {
         var rand = generateRandomValueOfType(type)
@@ -197,6 +212,12 @@ class SavablePropertyTest {
             ShortArray::class -> generateRandomArrayOfType(Short::class) as T
             String::class -> UUID.randomUUID().toString() as T
             Mode::class -> Mode.values()[Random().nextInt(Short.MAX_VALUE + 1) % 2] as T
+            DataClass::class -> DataClass(Random().nextInt(), Random().nextInt()) as T
+            ParcelableClass::class -> ParcelableClass(Random().nextInt(), Random().nextInt()) as T
+            Bundle::class -> Bundle().apply {
+                putString(UUID.randomUUID().toString(), UUID.randomUUID().toString() )
+                putInt(UUID.randomUUID().toString(), Random().nextInt())
+            } as T
             else -> {
                 throw TypeNotPresentException("generateRandomValueOfType is not implemented for $type", null)
             }
@@ -224,4 +245,33 @@ class SavablePropertyTest {
 enum class Mode {
     DEFAULT,
     OTHER
+}
+
+data class DataClass(val field1: Int, val field2: Int)
+
+class ParcelableClass(val field1: Int, val field2: Int) : Parcelable {
+
+    constructor(parcel: Parcel) : this(
+            parcel.readInt(),
+            parcel.readInt()) {
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeInt(field1)
+        parcel.writeInt(field2)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<ParcelableClass> {
+        override fun createFromParcel(parcel: Parcel): ParcelableClass {
+            return ParcelableClass(parcel)
+        }
+
+        override fun newArray(size: Int): Array<ParcelableClass?> {
+            return arrayOfNulls(size)
+        }
+    }
 }
